@@ -89,9 +89,6 @@ While creating Environment configure:
 __Enable:__  
 "Instance log streaming to CloudWatch Logs"
 
-__Set:__  
-"Modify rolling updates and deployments" = _Immutable_
-
 __Enable:__
 "Monitoring" -> "Ignore HTTP 4xx"
 
@@ -162,7 +159,13 @@ or
 ```
 
 
-__Note:__
-_First time this process will take long time, 
+__Notes:__
+1. _First time this process will take long time, 
  since it will require to create your ssl certificate._
+2. _Current configuration will create a staging certificate,
+ for a prod certificate set STAGING to 'false' in DockerRun config like:_  
+__release-https/Dockerrun.aws.json__
+```json
+        {"name": "STAGING","value": "false"}
+```
 
