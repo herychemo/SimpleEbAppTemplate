@@ -1,0 +1,95 @@
+
+# Info
+info:
+  component: Dummy Web App
+
+
+# App name
+spring:
+  application:
+    name: dummy-webapp
+
+
+  # Logging
+  sleuth:
+    sampler:
+      probability: 0.2  # 20.0% Sampling
+
+
+  # Network preferences
+  cloud.inetutils:
+    ignored-interfaces:
+      - docker0
+      - veth.*
+    preferred-networks:
+      - 192.168
+      - 10.0
+
+
+  # Multipart Config
+  servlet.multipart:
+    max-file-size: 14MB
+    max-request-size: 20MB
+
+
+  # Jackson configuration
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss Z
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+
+
+# Server Properties
+server:
+  port: ${SERVER_PORT:5000}
+  servlet:
+    context-path: /dummy-webapp
+
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+
+
+# Eureka client properties
+eureka:
+  instance:
+    metadataMap:
+      instanceId: ${spring.application.name}:${spring.application.instance_id:${random.int}}
+      management:
+        context-path: ${server.servlet.context-path}/actuator
+        port: ${server.port}
+    #nonSecurePort: 8088
+    statusPageUrlPath: ${server.servlet.context-path}/actuator/info
+    healthCheckUrlPath: ${server.servlet.context-path}/actuator/health
+    leaseRenewalIntervalInSeconds: 5
+    lease-expiration-duration-in-seconds: 5
+    prefer-ip-address: true
+  client:
+    # enable client only on profiles that require it.
+    #enabled: true
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
+    registerWithEureka: true
+    healthcheck:
+      enabled: true
+    fetchRegistry: false
+    registryFetchIntervalSeconds: 5
+
+
+# Hystrix Configuration
+hystrix:
+  shareSecurityContext: true
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 3000

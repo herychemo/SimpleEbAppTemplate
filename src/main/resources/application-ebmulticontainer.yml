@@ -1,0 +1,21 @@
+
+
+# Instance Id
+spring:
+  application:
+    instance_id: ebmulticontainer
+
+
+# Server Properties
+server:
+  port: ${SERVER_PORT:5000}
+  servlet:
+    context-path: /dummy-webapp
+
+
+# Eureka client properties
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
