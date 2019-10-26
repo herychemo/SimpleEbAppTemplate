@@ -1,0 +1,154 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "volumes": [
+    {
+      "name": "web-app",
+      "host": {
+        "sourcePath": "/var/app/current/java-app"
+      }
+    },
+    {
+      "name": "web1-logs",
+      "host": {
+        "sourcePath": "/var/log/containers/web1"
+      }
+    },
+    {
+      "name": "web2-logs",
+      "host": {
+          "sourcePath": "/var/log/containers/web2"
+      }
+    },
+    {
+    "name": "nginx-proxy-conf",
+    "host": {
+      "sourcePath": "/var/app/current/proxy-conf/nginx/site-confs"
+      }
+    },
+    {
+    "name": "nginx-ssl-conf",
+    "host": {
+      "sourcePath": "/var/app/current/proxy-conf/etc/letsencrypt"
+      }
+    },
+    {
+      "name": "nginx-logs",
+      "host": {
+        "sourcePath": "/var/log/containers/nginx-proxy"
+      }
+    }
+  ],
+  "containerDefinitions": [
+    {
+      "name": "web1",
+      "image": "openjdk:8-jre",
+      "essential": true,
+      "memory": 428,
+      "mountPoints": [
+        {
+          "sourceVolume": "web-app",
+          "containerPath": "/var/app"
+        },
+        {
+          "sourceVolume": "web1-logs",
+          "containerPath": "/tmp/logs"
+        }
+      ],
+      "portMappings": [
+        {
+          "hostPort": 5000,
+          "containerPort": 5000
+        }
+      ],
+      "environment": [
+        {
+          "name": "SERVER_PORT",
+          "value": "5000"
+        }
+      ],
+      "command": [
+        "java",
+        "-Djava.security.egd=file:/dev/./urandom",
+        "-Dspring.profiles.active=ebmulticontainer",
+        "-jar", "/var/app/dummy-webapp-exec.jar"
+      ]
+    },
+    {
+      "name": "web2",
+      "image": "openjdk:8-jre",
+      "memory": 428,
+      "mountPoints": [
+        {
+          "sourceVolume": "web-app",
+          "containerPath": "/var/app"
+        },
+        {
+          "sourceVolume": "web2-logs",
+          "containerPath": "/tmp/logs"
+        }
+      ],
+      "portMappings": [
+        {
+          "hostPort": 5100,
+          "containerPort": 5100
+        }
+      ],
+      "environment": [
+        {
+          "name": "SERVER_PORT",
+          "value": "5100"
+        }
+      ],
+      "command": [
+        "java",
+        "-Djava.security.egd=file:/dev/./urandom",
+        "-Dspring.profiles.active=ebmulticontainer",
+        "-jar", "/var/app/dummy-webapp-exec.jar"
+      ]
+    },
+    {
+      "name": "nginx-proxy",
+      "image": "linuxserver/letsencrypt",
+      "essential": true,
+      "memory": 128,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        },
+        {
+          "hostPort": 443,
+          "containerPort": 443
+        }
+      ],
+      "environment": [
+        {"name": "PUID","value": "500"},
+        {"name": "PGID","value": "500"},
+        {"name": "TZ","value": "America/Mexico_City"},
+        {"name": "URL","value": "grayraccoon.com"},
+        {"name": "SUBDOMAINS","value": "sampledocker,"},
+        {"name": "VALIDATION","value": "http"},
+        {"name": "EMAIL","value": "hery.chemo@gmail.com"},
+        {"name": "ONLY_SUBDOMAINS","value": "true"},
+        {"name": "STAGING","value": "true"}
+      ],
+      "links": [
+        "web1", "web2"
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "nginx-proxy-conf",
+          "containerPath": "/config/nginx/site-confs"
+        },
+        {
+          "sourceVolume": "nginx-ssl-conf",
+          "containerPath": "/config/etc/letsencrypt"
+        },
+        {
+          "sourceVolume": "nginx-logs",
+          "containerPath": "/config/log"
+        }
+      ]
+    }
+  ]
+}

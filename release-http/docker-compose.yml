@@ -1,0 +1,47 @@
+version: "3.3"
+
+services:
+
+  web1:
+    image: openjdk:8-jre
+    container_name: web1
+    hostname: web1
+    environment:
+      - SERVER_PORT=5000
+    ports:
+      - 5000:5000
+    command: [
+      "java",
+      "-Djava.security.egd=file:/dev/./urandom",
+      "-Dspring.profiles.active=ebmulticontainer",
+      "-jar", "/var/app/dummy-webapp-exec.jar"
+    ]
+    volumes:
+      - "D:/Projects/Sample/dummy-webapp/release-http/java-app/:/var/app"
+    networks:
+      - SampleNetwork
+
+  web2:
+    image: openjdk:8-jre
+    container_name: web2
+    hostname: web2
+    environment:
+      - SERVER_PORT=5100
+    ports:
+      - 5100:5100
+    command: [
+      "java",
+      "-Djava.security.egd=file:/dev/./urandom",
+      "-Dspring.profiles.active=ebmulticontainer",
+      "-jar", "/var/app/dummy-webapp-exec.jar"
+    ]
+    volumes:
+      - "D:/Projects/Sample/dummy-webapp/release-http/java-app/:/var/app"
+    networks:
+      - SampleNetwork
+
+networks:
+  SampleNetwork:
+
+# D:/Projects/Sample/dummy-webapp/release-http/java-app/
+# D:/Projects/Sample/dummy-webapp/release-https/proxy-conf/nginx/site-confs/dummy-webapp.conf
